@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nanally's Corner - Enfrentamientos de skins</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header Principal -->
+        <header class="header">
+            <div class="brand">
+                <div class="brand-avatar">
+                    <img src="https://lh3.googleusercontent.com/d/1cUl1caA8EauYI3GNdsVHvUXpcByPGVHU" alt="Logo NTE Ranker" class="brand-logo-img">
+                </div>
+                <div class="brand-info">
+                    <h1>El rincón de Nanally</h1>
+                    <span class="subtitle">Rankings no oficiales de skins de Neverness to Everness</span>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <div class="lang-selector">
+                    <select id="lang-select">
+                        <option value="es" selected>ES</option>
+                        <option value="us">US</option>
+                    </select>
+                    <svg class="select-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+
+                <nav class="nav-tabs">
+                    <button class="nav-btn active" data-tab="vote">Votar</button>
+                    <button class="nav-btn" data-tab="tiers">Tiers</button>
+                    
+                    <!-- Menú Desplegable de Rankings -->
+                    <div class="nav-dropdown" id="rankings-dropdown">
+                        <button class="nav-btn dropdown-toggle" data-tab="rankings">Rankings</button>
+                        <div class="dropdown-menu">
+                            <button class="dropdown-item" data-ranking-filter="ships">Personajes</button>
+                            <button class="dropdown-item" data-ranking-filter="skins">Skins</button>
+                        </div>
+                    </div>
+
+                    <button class="nav-btn" data-tab="latest">Nuevos</button>
+                    <button class="nav-btn" data-tab="news">Noticias</button>
+                    <button class="nav-btn" data-tab="about">Acerca de</button>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- 1. VOTE -->
+            <section id="view-vote" class="tab-view active">
+                <div class="vote-top-bar">
+                    <div class="vote-title-block">
+                        <h2>¿Qué personaje tiene mayor presencia?</h2>
+                        <div class="vote-sub-info">
+                            Elige a la que creas que tiene los... atributos (sí, eso) más grandes. Toca una tarjeta o presiona <kbd>←</kbd> / <kbd>→</kbd>
+                        </div>
+                    </div>
+                    <button id="btn-new-pair" class="btn-secondary">Nuevo par</button>
+                </div>
+
+                <div class="matchup-container">
+                    <div class="character-card" id="card-left">
+                        <div class="card-meta">
+                            <span class="char-name" id="name-left">Cargando...</span>
+                        </div>
+                        <div class="card-img-wrapper">
+                            <!-- Sin src inicial para evitar icono de imagen rota -->
+                            <img id="img-left" alt="Personaje Izquierdo">
+                        </div>
+                        <div class="card-action">
+                            <button class="btn-vote-trigger">Toca para votar</button>
+                        </div>
+                    </div>
+
+                    <div class="character-card" id="card-right">
+                        <div class="card-meta">
+                            <span class="char-name" id="name-right">Cargando...</span>
+                        </div>
+                        <div class="card-img-wrapper">
+                            <!-- Sin src inicial para evitar icono de imagen rota -->
+                            <img id="img-right" alt="Personaje Derecho">
+                        </div>
+                        <div class="card-action">
+                            <button class="btn-vote-trigger">Toca para votar</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. TIERS -->
+            <section id="view-tiers" class="tab-view">
+                <div class="view-header">
+                    <h2>Lista de Tiers</h2>
+                    <p class="section-desc">El tier de un personaje está determinado por la probabilidad de ganar contra un oponente de puntuación promedio.</p>
+                </div>
+
+                <div class="toolbar-filter">
+                    <div class="btn-group-toggle">
+                        <button class="toggle-btn active">Uno por personaje</button>
+                        <button class="toggle-btn">Todos los skins</button>
+                    </div>
+                    <div class="slider-control">
+                        <label>Tamaño</label>
+                        <input type="range" id="tier-size-slider" min="0.8" max="2.7" step="0.1" value="1.0">
+                        <span id="slider-val">1.0x</span>
+                    </div>
+                    <div class="search-input-box">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" id="tier-search" placeholder="Buscar por nombre...">
+                    </div>
+                </div>
+
+                <div id="tier-blocks-container" class="tier-blocks-container"></div>
+            </section>
+
+            <!-- 3. RANKINGS (Vista Principal de Tabla y Resumen) -->
+            <section id="view-rankings" class="tab-view">
+                <!-- Sub-vista A: Tabla General de Personajes / Skins -->
+                <div id="rankings-list-view">
+                    <div class="rankings-top-bar">
+                        <div class="view-header" style="margin-bottom: 0;">
+                            <h2 id="rankings-title">Top personajes</h2>
+                            <p class="section-desc" id="rankings-desc">Cada personaje aparece una vez, usando el skin donde rankea más alto. Actualizado cada ~10 minutos.</p>
+                        </div>
+                        <div class="search-input-box">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <input type="text" id="rankings-search" placeholder="Buscar para filtrar...">
+                        </div>
+                    </div>
+
+                    <div id="rankings-table-container" class="rankings-table-container">
+                        <!-- Aquí se inyectan las filas dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Sub-vista B: Ship Summary (Perfil Individual y sus Skins) -->
+                <div id="rankings-summary-view" style="display: none;">
+                    <button id="btn-back-to-rankings" class="btn-secondary" style="margin-bottom: 16px;">← Volver al ranking</button>
+                    
+                    <div class="summary-profile-layout">
+                        <div class="summary-left-card">
+                            <div class="card-meta">
+                                <span class="char-name" id="summary-char-name">Taihou</span>
+                            </div>
+                            <div class="card-img-wrapper" style="height: 480px;">
+                                <img id="summary-char-img" src="" alt="Personaje Destacado">
+                            </div>
+                        </div>
+
+                        <div class="summary-right-stats">
+                            <div class="stat-box">
+                                <span class="stat-label">Skins</span>
+                                <span class="stat-value" id="stat-skins-count">8</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-label">Mejor popularidad</span>
+                                <span class="stat-value" id="stat-best-rating">2571</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-label">Victorias</span>
+                                <span class="stat-value" id="stat-wins">2562</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-label">Derrotas</span>
+                                <span class="stat-value" id="stat-losses">1470</span>
+                            </div>
+                            <div class="stat-box full-width">
+                                <span class="stat-label">Enfrentamientos</span>
+                                <span class="stat-value" id="stat-matches">4032</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="view-header" style="margin-top: 24px;">
+                        <h3 id="summary-skins-title" style="font-size: 1.1rem; font-weight: 700;">Top skins (8)</h3>
+                    </div>
+                    <div id="summary-skins-container" class="summary-skins-container">
+                        <!-- Aquí se inyectan los skins individuales del personaje -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. LATEST -->
+            <section id="view-latest" class="tab-view">
+                <div class="view-header">
+                    <h2>Últimos lanzamientos</h2>
+                    <p class="section-desc">Personajes agrupados por mes de lanzamiento.</p>
+                </div>
+
+                <div class="toolbar-filter">
+                    <div class="slider-control">
+                        <label>Tamaño</label>
+                        <input type="range" id="latest-size-slider" min="0.8" max="2.7" step="0.1" value="1.0">
+                        <span id="latest-slider-val">1.0x</span>
+                    </div>
+                    <div class="search-input-box">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" id="latest-search" placeholder="Buscar por nombre...">
+                    </div>
+                </div>
+
+                <div id="latest-groups-container" class="latest-groups-container"></div>
+            </section>
+
+            <!-- 5. NEWS -->
+            <section id="view-news" class="tab-view">
+                <div class="view-header">
+                    <h2>Noticias</h2>
+                    <p class="section-desc">Cualquier novedad o comentario se publicará por aquí.</p>
+                </div>
+                <div id="news-feed-container" class="news-feed-container"></div>
+            </section>
+
+            <!-- 6. ABOUT -->
+            <section id="view-about" class="tab-view">
+                <div class="about-block">
+                    <h2>¿Qué es esto?</h2>
+                    <p>NTE Ranker es una herramienta de votación no oficial hecha por la comunidad para comparar personajes de Neverness to Everness.</p>
+                </div>
+                <div class="faq-section">
+                    <h2>Preguntas Frecuentes (FAQ)</h2>
+                    <div class="faq-accordion"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
