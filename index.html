@@ -71,7 +71,6 @@
                             <span class="char-name" id="name-left">Cargando...</span>
                         </div>
                         <div class="card-img-wrapper">
-                            <!-- Sin src inicial para evitar icono de imagen rota -->
                             <img id="img-left" alt="Personaje Izquierdo">
                         </div>
                         <div class="card-action">
@@ -84,7 +83,6 @@
                             <span class="char-name" id="name-right">Cargando...</span>
                         </div>
                         <div class="card-img-wrapper">
-                            <!-- Sin src inicial para evitar icono de imagen rota -->
                             <img id="img-right" alt="Personaje Derecho">
                         </div>
                         <div class="card-action">
@@ -135,16 +133,15 @@
                         </div>
                     </div>
 
-                    <div id="rankings-table-container" class="rankings-table-container">
-                        <!-- Aquí se inyectan las filas dinámicamente -->
-                    </div>
+                    <div id="rankings-table-container" class="rankings-table-container"></div>
                 </div>
 
-                <!-- Sub-vista B: Ship Summary (Perfil Individual y sus Skins) -->
+                <!-- Sub-vista B: Ship Summary (Perfil Individual, Desglose y Historial) -->
                 <div id="rankings-summary-view" style="display: none;">
                     <button id="btn-back-to-rankings" class="btn-secondary" style="margin-bottom: 16px;">← Volver al ranking</button>
                     
                     <div class="summary-profile-layout">
+                        <!-- Columna Izquierda: Tarjeta Imagen -->
                         <div class="summary-left-card">
                             <div class="card-meta">
                                 <span class="char-name" id="summary-char-name">Taihou</span>
@@ -154,6 +151,7 @@
                             </div>
                         </div>
 
+                        <!-- Columna Central: Estadísticas y Bloque Winrate -->
                         <div class="summary-right-stats">
                             <div class="stat-box">
                                 <span class="stat-label">Skins</span>
@@ -175,14 +173,32 @@
                                 <span class="stat-label">Enfrentamientos</span>
                                 <span class="stat-value" id="stat-matches">4032</span>
                             </div>
+                            <div class="stat-box full-width winrate-showcase">
+                                <div class="winrate-info-side">
+                                    <span class="stat-label">Winrate General (%)</span>
+                                    <span class="stat-value" id="stat-winrate" style="color: #2563eb;">0.0%</span>
+                                </div>
+                                <div class="winrate-badge-side">
+                                    <span id="stat-global-battles">0 batallas globales</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna Derecha: Desglose de Skins -->
+                        <div class="summary-skins-column">
+                            <div class="view-header" style="margin-bottom: 12px;">
+                                <h3 id="summary-skins-title" style="font-size: 1.05rem; font-weight: 700;">Desglose de Skins</h3>
+                            </div>
+                            <div id="summary-skins-container" class="summary-skins-container"></div>
                         </div>
                     </div>
 
-                    <div class="view-header" style="margin-top: 24px;">
-                        <h3 id="summary-skins-title" style="font-size: 1.1rem; font-weight: 700;">Top skins (8)</h3>
+                    <!-- Bloque Inferior: Historial de Enfrentamientos Recientes -->
+                    <div class="view-header" style="margin-top: 24px; margin-bottom: 12px;">
+                        <h3 style="font-size: 1.1rem; font-weight: 700;">Historial de Enfrentamientos Recientes</h3>
                     </div>
-                    <div id="summary-skins-container" class="summary-skins-container">
-                        <!-- Aquí se inyectan los skins individuales del personaje -->
+                    <div id="summary-history-container" class="summary-history-container">
+                        <!-- Las tarjetitas de historial se inyectan aquí -->
                     </div>
                 </div>
             </section>

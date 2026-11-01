@@ -1,6 +1,6 @@
 /**
  * NTE Ranker - Core Application Logic
- * Integración con Google Sheets Web App API (Global Sync) + Sistema Elo Base 1000 + Conversor de Drive + Sliders + Rankings & Ship Summary
+ * Integración con Google Sheets Web App API (Global Sync + Historial de Enfrentamientos)
  */
 
 const GOOGLE_SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbzoIbivf7hCOTGelu7Pg3qR0rrgz2ShcngiEJKxcYpvOQEmpzmM9T3PxfxZ08Hgkxn6/exec";
@@ -10,6 +10,7 @@ let roster = [];
 let tiersConfig = [];
 let newsData = [];
 let aboutData = { texts: {}, faq: [] };
+let globalCombates = []; // Almacena el historial de batallas global de la hoja Enfrentamientos
 let currentLang = 'es';
 let tierViewMode = 'all';
 
@@ -52,9 +53,9 @@ function sanitizeDriveUrl(url) {
 }
 
 function checkAndRecordVisit() {
-    const HAS_VISITED_KEY = "nte_user_visited_v1";
+    const HAS_VISITED_SESSION_KEY = "nte_session_visited";
     
-    if (!localStorage.getItem(HAS_VISITED_KEY)) {
+    if (!sessionStorage.getItem(HAS_VISITED_SESSION_KEY)) {
         fetch(GOOGLE_SHEETS_API_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -62,7 +63,7 @@ function checkAndRecordVisit() {
             body: JSON.stringify({ action: "record_visit" })
         })
         .then(() => {
-            localStorage.setItem(HAS_VISITED_KEY, "true");
+            sessionStorage.setItem(HAS_VISITED_SESSION_KEY, "true");
         })
         .catch(err => console.error("Error registrando visita:", err));
     }
@@ -75,7 +76,13 @@ async function fetchGoogleSheetsData() {
         
         if (data.vote && data.vote.length > 0) {
             const localMap = {};
-            roster.forEach(item => { localMap[item.id_skin_personaje] = { rating: item.rating, matches: item.matches }; });
+            roster.forEach(item => { 
+                localMap[item.id_skin_personaje] = { 
+                    rating: item.rating, 
+                    matches: item.matches, 
+                    wins: item.wins 
+                }; 
+            });
 
             roster = data.vote.map(row => ({
                 id_skin_personaje: row.id_skin_personaje,
@@ -86,13 +93,15 @@ async function fetchGoogleSheetsData() {
                 imagenskin_thumb: sanitizeDriveUrl(row.imagenshortskin || row.imagenskin_thumb || row.imagenskin),
                 fecha_lanzamiento: row.fecha_lanzamiento || '',
                 rating: row.rating !== undefined && row.rating !== "" ? Number(row.rating) : (localMap[row.id_skin_personaje] ? localMap[row.id_skin_personaje].rating : 1000),
-                matches: row.matches !== undefined && row.matches !== "" ? Number(row.matches) : (localMap[row.id_skin_personaje] ? localMap[row.id_skin_personaje].matches : 0)
+                matches: row.matches !== undefined && row.matches !== "" ? Number(row.matches) : (localMap[row.id_skin_personaje] ? localMap[row.id_skin_personaje].matches : 0),
+                wins: localMap[row.id_skin_personaje] && localMap[row.id_skin_personaje].wins !== undefined ? localMap[row.id_skin_personaje].wins : 0
             }));
         }
 
         if (data.tiers && data.tiers.length > 0) tiersConfig = data.tiers;
         if (data.news && data.news.length > 0) newsData = data.news;
         if (data.about && data.about.length > 0) processAboutData(data.about);
+        if (data.combates && data.combates.length > 0) globalCombates = data.combates;
 
         saveLocalData();
         renderNews();
@@ -256,7 +265,6 @@ function preloadImage(url) {
 
 function getNewPair() {
     if (roster.length < 2) {
-        // Limpiamos los src si aún no hay datos para evitar imágenes rotas
         const imgLeft = document.getElementById('img-left');
         const imgRight = document.getElementById('img-right');
         if (imgLeft) imgLeft.removeAttribute('src');
@@ -325,9 +333,12 @@ function handleVote(winnerIdx) {
 
     const { newWinnerRating, newLoserRating } = calculateElo(winner.rating, loser.rating);
     winner.rating = newWinnerRating;
-    winner.matches++;
     loser.rating = newLoserRating;
-    loser.matches++;
+
+    winner.matches = (winner.matches || 0) + 1;
+    winner.wins = (winner.wins || 0) + 1;
+
+    loser.matches = (loser.matches || 0) + 1;
 
     saveLocalData();
     syncVoteGlobal(winner, loser);
@@ -421,7 +432,7 @@ function renderRankingsTable(filterType = 'ships') {
     container.innerHTML = listToRender.map((item, index) => {
         const skinName = currentLang === 'us' ? (item.nombreskin_en || item.nombreskin) : item.nombreskin;
         const matches = item.matches || 0;
-        const wins = Math.round(matches * (item.rating / (item.rating + 1000))) || Math.floor(matches / 2);
+        const wins = item.wins || 0;
         const releaseYearMonth = item.fecha_lanzamiento ? item.fecha_lanzamiento.substring(0, 7).replace('-', '/') : '2026/10';
 
         return `
@@ -469,41 +480,86 @@ function openShipSummary(characterName) {
     const totalSkins = charSkins.length;
     const bestRating = bestSkin.rating;
     const totalMatches = charSkins.reduce((acc, curr) => acc + (curr.matches || 0), 0);
-    const totalWins = charSkins.reduce((acc, curr) => acc + Math.round((curr.matches || 0) * 0.5), 0);
+    const totalWins = charSkins.reduce((acc, curr) => acc + (curr.wins || 0), 0);
     const totalLosses = Math.max(0, totalMatches - totalWins);
+    const generalWinrate = totalMatches > 0 ? ((totalWins / totalMatches) * 100).toFixed(1) : '0.0';
 
     document.getElementById('stat-skins-count').textContent = totalSkins;
     document.getElementById('stat-best-rating').textContent = bestRating;
     document.getElementById('stat-wins').textContent = totalWins;
     document.getElementById('stat-losses').textContent = totalLosses;
     document.getElementById('stat-matches').textContent = totalMatches;
+    
+    const winrateEl = document.getElementById('stat-winrate');
+    if (winrateEl) winrateEl.textContent = `${generalWinrate}%`;
+
+    const globalBattlesCountEl = document.getElementById('stat-global-battles');
+    if (globalBattlesCountEl) globalBattlesCountEl.textContent = `${totalMatches} batallas globales`;
+
     document.getElementById('summary-skins-title').textContent = `Popularidad de skins (${totalSkins})`;
 
+    // 1. Renderizar Desglose de Skins
     const skinsContainer = document.getElementById('summary-skins-container');
     skinsContainer.innerHTML = charSkins.map((skin, idx) => {
         const skinName = currentLang === 'us' ? (skin.nombreskin_en || skin.nombreskin) : skin.nombreskin;
         const matches = skin.matches || 0;
-        const wins = Math.round(matches * 0.5);
-        const dateVal = skin.fecha_lanzamiento || '2025/05';
+        const wins = skin.wins || 0;
+        const skinWinrate = matches > 0 ? Math.round((wins / matches) * 100) : 0;
 
         return `
-            <div class="ranking-row-card">
-                <div class="ranking-row-left">
-                    <span class="ranking-pos">#${idx + 1}</span>
-                    <img src="${skin.imagenskin_thumb || skin.imagenskin}" alt="${skinName}" class="ranking-thumb">
+            <div class="ranking-row-card" style="padding: 8px 12px;">
+                <div class="ranking-row-left" style="gap: 12px;">
+                    <img src="${skin.imagenskin_thumb || skin.imagenskin}" alt="${skinName}" class="ranking-thumb" style="width: 40px; height: 50px;">
                     <div class="ranking-details">
-                        <h3>${skinName}</h3>
-                        <div class="ranking-stats-inline" style="margin-top: 4px;">
-                            <span>Popularidad: <strong>${skin.rating}</strong></span>
-                            <span>Enfrentamientos: <strong>${matches}</strong></span>
-                            <span>Victorias: <strong>${wins}</strong></span>
-                            <span>${dateVal}</span>
+                        <h3 style="font-size: 0.9rem;">${characterName} - ${skinName}</h3>
+                        <div class="ranking-stats-inline" style="font-size: 0.7rem;">
+                            <span>Rating: <strong>${skin.rating}</strong></span>
+                            <span>Winrate: <strong>${skinWinrate}% (${wins}/${matches})</strong></span>
                         </div>
                     </div>
                 </div>
             </div>
         `;
     }).join('');
+
+    // 2. Renderizar Historial de Enfrentamientos Recientes filtrados con normalización robusta
+    const historyContainer = document.getElementById('summary-history-container');
+    if (historyContainer) {
+        // Normalizamos los IDs de las skins del personaje (minúsculas y sin espacios)
+        const charSkinIds = charSkins.map(s => String(s.id_skin_personaje || '').toLowerCase().trim());
+        
+        // Filtramos buscando de forma flexible en los combates globales
+        const charCombates = globalCombates.filter(c => {
+            const ganador = String(c.id_ganador || '').toLowerCase().trim();
+            const perdedor = String(c.id_perdedor || '').toLowerCase().trim();
+            return charSkinIds.includes(ganador) || charSkinIds.includes(perdedor);
+        }).reverse().slice(0, 5); // Tomamos los últimos 5
+
+        if (charCombates.length === 0) {
+            historyContainer.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem; padding: 8px;">No hay enfrentamientos recientes registrados todavía.</p>`;
+        } else {
+            historyContainer.innerHTML = charCombates.map(combat => {
+                const ganador = String(combat.id_ganador || '').toLowerCase().trim();
+                const perdedor = String(combat.id_perdedor || '').toLowerCase().trim();
+                
+                const isWinner = charSkinIds.includes(ganador);
+                const opponentId = isWinner ? perdedor : ganador;
+                
+                // Buscamos la skin oponente en el roster general con normalización
+                const opponentSkin = roster.find(r => String(r.id_skin_personaje || '').toLowerCase().trim() === opponentId);
+                
+                const opponentName = opponentSkin ? `${opponentSkin.nombrepersonaje} (Skin: ${opponentSkin.nombreskin})` : opponentId;
+                const resultText = isWinner ? 'Victoria' : 'Derrota';
+                const cardClass = isWinner ? 'history-card win' : 'history-card loss';
+
+                return `
+                    <div class="${cardClass}">
+                        <span>VS ${opponentName} - <strong>${resultText}</strong></span>
+                    </div>
+                `;
+            }).join('');
+        }
+    }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
