@@ -59,7 +59,7 @@
                     <div class="vote-title-block">
                         <h2>¿Qué personaje tiene mayor presencia?</h2>
                         <div class="vote-sub-info">
-                            Elige a la que creas que tiene los... atributos (sí, eso) más grandes. Toca una tarjeta o presiona <kbd>←</kbd> / <kbd>→</kbd>
+                            ¡Elige la skin que mas te guste del personaje! Toca una tarjeta o presiona <kbd>←</kbd> / <kbd>→</kbd>
                         </div>
                     </div>
                     <button id="btn-new-pair" class="btn-secondary">Nuevo par</button>
@@ -125,7 +125,7 @@
                     <div class="rankings-top-bar">
                         <div class="view-header" style="margin-bottom: 0;">
                             <h2 id="rankings-title">Top personajes</h2>
-                            <p class="section-desc" id="rankings-desc">Cada personaje aparece una vez, usando el skin donde rankea más alto. Actualizado cada ~10 minutos.</p>
+                            <p class="section-desc" id="rankings-desc">Cada personaje aparece una vez, usando el skin con calificación más alta.</p>
                         </div>
                         <div class="search-input-box">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -141,7 +141,7 @@
                     <button id="btn-back-to-rankings" class="btn-secondary" style="margin-bottom: 16px;">← Volver al ranking</button>
                     
                     <div class="summary-profile-layout">
-                        <!-- Columna Izquierda: Tarjeta Imagen -->
+                        <!-- Columna 1: Tarjeta Imagen del Personaje -->
                         <div class="summary-left-card">
                             <div class="card-meta">
                                 <span class="char-name" id="summary-char-name">Taihou</span>
@@ -151,55 +151,57 @@
                             </div>
                         </div>
 
-                        <!-- Columna Central: Estadísticas y Bloque Winrate -->
-                        <div class="summary-right-stats">
-                            <div class="stat-box">
-                                <span class="stat-label">Skins</span>
-                                <span class="stat-value" id="stat-skins-count">8</span>
-                            </div>
-                            <div class="stat-box">
-                                <span class="stat-label">Mejor popularidad</span>
-                                <span class="stat-value" id="stat-best-rating">2571</span>
-                            </div>
-                            <div class="stat-box">
-                                <span class="stat-label">Victorias</span>
-                                <span class="stat-value" id="stat-wins">2562</span>
-                            </div>
-                            <div class="stat-box">
-                                <span class="stat-label">Derrotas</span>
-                                <span class="stat-value" id="stat-losses">1470</span>
-                            </div>
-                            <div class="stat-box full-width">
-                                <span class="stat-label">Enfrentamientos</span>
-                                <span class="stat-value" id="stat-matches">4032</span>
-                            </div>
-                            <div class="stat-box full-width winrate-showcase">
-                                <div class="winrate-info-side">
-                                    <span class="stat-label">Winrate General (%)</span>
-                                    <span class="stat-value" id="stat-winrate" style="color: #2563eb;">0.0%</span>
+                        <!-- Columna 2: Estadísticas y Bloque Winrate -->
+                        <div class="summary-center-stats">
+                            <div class="summary-stats-grid">
+                                <div class="stat-box">
+                                    <span class="stat-label">Skins</span>
+                                    <span class="stat-value" id="stat-skins-count">8</span>
                                 </div>
-                                <div class="winrate-badge-side">
-                                    <span id="stat-global-battles">0 batallas globales</span>
+                                <div class="stat-box">
+                                    <span class="stat-label">Mejor calificación</span>
+                                    <span class="stat-value" id="stat-best-rating">2571</span>
+                                </div>
+                                <div class="stat-box">
+                                    <span class="stat-label">Victorias</span>
+                                    <span class="stat-value" id="stat-wins">2562</span>
+                                </div>
+                                <div class="stat-box">
+                                    <span class="stat-label">Derrotas</span>
+                                    <span class="stat-value" id="stat-losses">1470</span>
+                                </div>
+                                <div class="stat-box full-width">
+                                    <span class="stat-label">Enfrentamientos</span>
+                                    <span class="stat-value" id="stat-matches">4032</span>
+                                </div>
+                                <div class="stat-box full-width winrate-showcase">
+                                    <div class="winrate-info-side">
+                                        <span class="stat-label">Winrate General</span>
+                                        <span class="stat-value" id="stat-winrate" style="color: #2563eb;">0.0%</span>
+                                    </div>
+                                    <div class="winrate-badge-side">
+                                        <span id="stat-global-battles">0 batallas globales</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Columna Derecha: Desglose de Skins -->
-                        <div class="summary-skins-column">
+                        <!-- Columna 3: Historial de Enfrentamientos Recientes (Arriba a la derecha) -->
+                        <div class="summary-history-column">
                             <div class="view-header" style="margin-bottom: 12px;">
-                                <h3 id="summary-skins-title" style="font-size: 1.05rem; font-weight: 700;">Desglose de Skins</h3>
+                                <h3 style="font-size: 1.05rem; font-weight: 700;">Historial de los últimos 5 enfrentamientos</h3>
                             </div>
-                            <div id="summary-skins-container" class="summary-skins-container"></div>
+                            <div id="summary-history-container" class="summary-history-container">
+                                <!-- Las tarjetitas de versus se inyectan aquí -->
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Bloque Inferior: Historial de Enfrentamientos Recientes -->
+                    <!-- Bloque Inferior: Desglose de Skins -->
                     <div class="view-header" style="margin-top: 24px; margin-bottom: 12px;">
-                        <h3 style="font-size: 1.1rem; font-weight: 700;">Historial de Enfrentamientos Recientes</h3>
+                        <h3 id="summary-skins-title" style="font-size: 1.1rem; font-weight: 700;">Calificación de skins</h3>
                     </div>
-                    <div id="summary-history-container" class="summary-history-container">
-                        <!-- Las tarjetitas de historial se inyectan aquí -->
-                    </div>
+                    <div id="summary-skins-container" class="summary-skins-container"></div>
                 </div>
             </section>
 
@@ -238,7 +240,7 @@
             <section id="view-about" class="tab-view">
                 <div class="about-block">
                     <h2>¿Qué es esto?</h2>
-                    <p>NTE Ranker es una herramienta de votación no oficial hecha por la comunidad para comparar personajes de Neverness to Everness.</p>
+                    <p>El rincón de Nanally es una fanpage de votación no oficial hecha por la comunidad para comparar personajes de Neverness to Everness.</p>
                 </div>
                 <div class="faq-section">
                     <h2>Preguntas Frecuentes (FAQ)</h2>

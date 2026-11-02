@@ -281,7 +281,7 @@ body {
 
 .card-img-wrapper { 
     width: 100%; 
-    height: 520px; 
+    height: 580px; 
     background: #cbd5e1; 
     border-radius: 8px; 
     overflow: hidden; 
@@ -362,6 +362,7 @@ body {
     min-width: 36px;
 }
 
+/* Dimensiones uniformes para miniaturas */
 .ranking-thumb {
     width: 55px;
     height: 70px;
@@ -369,6 +370,7 @@ body {
     object-fit: cover;
     background: #cbd5e1;
     border: 1px solid var(--border-color);
+    flex-shrink: 0;
 }
 
 .ranking-details h3 {
@@ -391,6 +393,7 @@ body {
     color: var(--text-muted);
     font-weight: 600;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .ranking-stats-inline span strong {
@@ -419,11 +422,22 @@ body {
     border-color: #94a3b8;
 }
 
+/* Colores suaves para el Winrate */
+.winrate-pill {
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-weight: 700;
+}
+.winrate-high { background-color: #dcfce7; color: #166534; } /* Verde suave */
+.winrate-mid  { background-color: #fef9c3; color: #854d0e; } /* Amarillo suave */
+.winrate-low  { background-color: #ffedd5; color: #9a3412; } /* Naranja suave */
+.winrate-bad  { background-color: #fee2e2; color: #991b1b; } /* Rojo suave */
+
 /* --- Vista de Perfil / Ship Summary Layout a 3 columnas --- */
 .summary-profile-layout {
     display: grid;
-    grid-template-columns: 300px 1fr 320px;
-    gap: 20px;
+    grid-template-columns: 260px minmax(220px, 1fr) 420px;
+    gap: 16px;
     align-items: start;
 }
 
@@ -438,13 +452,13 @@ body {
     box-shadow: var(--shadow-sm);
 }
 
-.summary-right-stats {
+.summary-stats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 8px;
 }
 
-.summary-skins-column {
+.summary-history-column {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
@@ -479,7 +493,7 @@ body {
     color: var(--text-primary);
 }
 
-/* Vitrina de Winrate Estilo Referencia */
+/* Vitrina de Winrate */
 .winrate-showcase {
     background: linear-gradient(135deg, #ffffff, #f1f5f9);
     display: flex !important;
@@ -497,32 +511,104 @@ body {
     color: var(--text-muted);
 }
 
-/* Tarjetas del Historial de Enfrentamientos Recientes */
+/* Tarjetas del Historial de Enfrentamientos Recientes (Versus Layout clásico) */
 .summary-history-container {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
-.history-card {
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 500;
+.history-versus-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-radius: 10px;
     border: 1px solid var(--border-color);
+    background: #ffffff;
+    gap: 8px;
     box-shadow: var(--shadow-sm);
 }
 
-.history-card.win {
-    background-color: #dcfce7; /* Verde clarito */
-    border-color: #bbf7d0;
-    color: #166534;
+.history-versus-card.win {
+    border-color: #86efac;
+    background-color: #f0fdf4;
 }
 
-.history-card.loss {
-    background-color: #fee2e2; /* Rojo clarito */
-    border-color: #fecaca;
-    color: #991b1b;
+.history-versus-card.loss {
+    border-color: #fca5a5;
+    background-color: #fef2f2;
+}
+
+.history-side {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1 1 0%; 
+    width: 0;
+}
+
+.history-side.right {
+    flex-direction: row-reverse;
+    text-align: right;
+    justify-content: flex-start;
+}
+
+.history-thumb {
+    width: 46px;
+    height: 58px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: #cbd5e1;
+    border: 1px solid var(--border-color);
+}
+
+.history-info {
+    overflow: hidden;
+    max-width: 110px;
+    position: relative;
+}
+
+.history-info .history-winrate {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 2px;
+}
+
+/* --- Animación de Marquesina sin retroceso (Ticker continuo) --- */
+.history-info .history-name {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    display: inline-block;
+    animation: marquee-ticker 7s linear infinite;
+}
+
+@keyframes marquee-ticker {
+    0% {
+        transform: translateX(0%);
+    }
+    80% {
+        transform: translateX(calc(-100% + 90px));
+    }
+    80.001% {
+        transform: translateX(0%);
+    }
+    100% {
+        transform: translateX(0%);
+    }
+}
+
+.history-vs-divider {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    text-align: center;
+    width: 24px;
 }
 
 /* Toolbars de Filtro */
